@@ -22,12 +22,10 @@ abstract class ApiConfig {
 
   /// URL local para dispositivo físico en la LAN.
   /// Servidor local MES en Windows Server.
-  static const String _localLanBaseUrl =
-      'http://192.168.1.10/api/shipping';
+  static const String _localLanBaseUrl = 'http://192.168.1.10/api/shipping';
 
   /// URL del backend MES en servidor local.
-  static const String _productionBaseUrl =
-      'http://192.168.1.10/api/shipping';
+  static const String _productionBaseUrl = 'http://192.168.1.10/api/shipping';
 
   static String get baseUrl {
     switch (environment) {
@@ -75,6 +73,9 @@ abstract class ApiConfig {
   static const String materialBaseEndpoint = '/material';
   static const String materialEntriesEndpoint = '$materialBaseEndpoint/entries';
   static const String materialExitsEndpoint = '$materialBaseEndpoint/exits';
+  static const String materialExitBoxesEndpoint =
+      '$materialExitsEndpoint/boxes';
+  static const String materialBoxesEndpoint = '$materialBaseEndpoint/boxes';
   static const String materialReturnsEndpoint = '$materialBaseEndpoint/returns';
   static const String materialInventoryEndpoint =
       '$materialBaseEndpoint/inventory';

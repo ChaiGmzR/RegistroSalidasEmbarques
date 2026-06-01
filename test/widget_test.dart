@@ -5,8 +5,10 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:registro_salidas_embarques/features/scan/scan_screen.dart';
 import 'package:registro_salidas_embarques/main.dart';
 
 void main() {
@@ -17,5 +19,21 @@ void main() {
 
     expect(find.text('Salidas'), findsOneWidget);
     expect(find.text('Iniciar Sesión'), findsOneWidget);
+  });
+
+  testWidgets('salida no EBR directa cambia a captura por cantidad', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: ExitScanForm(embedded: true)),
+      ),
+    );
+
+    await tester.enterText(find.byType(TextFormField).first, 'ABQ74229133');
+    await tester.pump();
+
+    expect(find.text('Cantidad'), findsWidgets);
+    expect(find.text('Box ID'), findsNothing);
   });
 }
