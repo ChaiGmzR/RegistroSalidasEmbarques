@@ -115,27 +115,22 @@ class _ExitScanFormState extends State<ExitScanForm> {
 
   Future<void> _validateAndAddBox(String rawBoxCode) async {
     final parsedQr = ShippingQrParser.parse(_manualController.text);
-    if (parsedQr == null) {
+    final labelPartNumber =
+        _expectedPartNumber ?? _currentLabelPartNumber ?? parsedQr?.partNumber;
+
+    if (labelPartNumber == null || labelPartNumber.isEmpty) {
       _showMessage('Escanea primero el QR de etiqueta.');
       _qrFocusNode.requestFocus();
       return;
     }
 
-    final labelPartNumber = parsedQr.partNumber;
     if (!_requiresBoxId(labelPartNumber)) {
       _showMessage('Este número de parte se registra por cantidad.');
       _quantityFocusNode.requestFocus();
       return;
     }
 
-    final requiredPartNumber = _expectedPartNumber ?? labelPartNumber;
-    if (labelPartNumber != requiredPartNumber) {
-      _showMessage(
-        'El QR pertenece a $labelPartNumber; el lote requiere $requiredPartNumber.',
-      );
-      _qrFocusNode.requestFocus();
-      return;
-    }
+    final requiredPartNumber = labelPartNumber;
 
     final boxCode = _normalizeBoxCode(rawBoxCode);
     if (boxCode.isEmpty) {
@@ -187,7 +182,7 @@ class _ExitScanFormState extends State<ExitScanForm> {
       if (box.partNumber != labelPartNumber) {
         setState(() => _isValidatingBox = false);
         _showMessage(
-          'La caja pertenece a ${box.partNumber}; el QR escaneado es $labelPartNumber.',
+          'La caja pertenece a ${box.partNumber}; el número de parte esperado es $requiredPartNumber.',
         );
         return;
       }
@@ -196,13 +191,12 @@ class _ExitScanFormState extends State<ExitScanForm> {
         _scannedBoxes.add(box);
         _isValidatingBox = false;
         _expectedPartNumber = requiredPartNumber;
-        _currentLabelPartNumber = null;
+        _currentLabelPartNumber = requiredPartNumber;
         _captureMode = _ExitCaptureMode.boxId;
       });
 
-      _manualController.clear();
       _boxIdController.clear();
-      _qrFocusNode.requestFocus();
+      _boxIdFocusNode.requestFocus();
     } catch (e) {
       if (!mounted) {
         return;
@@ -418,9 +412,14 @@ class _ExitScanFormState extends State<ExitScanForm> {
         : (_expectedPartNumber ?? _firstScannedPartNumber);
 
     if (requiredPartNumber != null && requiredPartNumber != normalizedPart) {
+      _manualController.value = TextEditingValue(
+        text: requiredPartNumber,
+        selection: TextSelection.collapsed(offset: requiredPartNumber.length),
+      );
       _showMessage(
         'El QR pertenece a $normalizedPart; las cajas escaneadas son $requiredPartNumber.',
       );
+      _boxIdFocusNode.requestFocus();
       return;
     }
 
